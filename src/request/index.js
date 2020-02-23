@@ -18,9 +18,23 @@ export const loginRequest=(params)=>{
         ...params
     })
 }
+export const loginOutRequest=(params)=>{
+    return axios.post(`${API}/user/loginout`,{
+        ...params
+    })
+}
+export const getIsloginCountRequest=()=>{
+    return axios.get(`${API}/user/loginselect`)
+}
 //注册
 export const userAddRequest = (params)=>{
     return axios.post(`${API}/user/reg`,{
+        ...params
+    })
+}
+//个人信息更新
+export const userUpdateRequest=(params)=>{
+    return axios.post(`${API}/user/update`,{
         ...params
     })
 }
@@ -67,5 +81,58 @@ export const orderPlacePersonRequest = (params)=>{
     return axios.post(`${API}/place/update`,{
         ...params,
         status:1
+    })
+}
+//用户数据管理
+export const rootUserPageSearchRequest = (params)=>{
+    return axios.post(`${API}/user/userpagesearch`,{
+        ...params
+    })
+}
+export const rootUserDelRequest = (params)=>{
+    return axios.post(`${API}/user/del`,{
+        ...params
+    })
+}
+export const rootUserEditRequest = (params)=>{
+    return axios.post(`${API}/user/rootupdate`,{
+        ...params
+    })
+}
+export const rootUserAddRequest = (params)=>{
+    return axios.post(`${API}/user/rootadd`,{
+        ...params
+    })
+}
+//预约数据管理
+export const rootOrderDetailRequest =(params)=>{
+    return axios.post(`${API}/place/rootsearch`,{
+        ...params
+    })
+}
+export const rootOrderDelRequest = (params)=>{
+    return axios.post(`${API}/place/rootdel`,{
+        ...params
+    })
+}
+export const rootOrderCancelRequest = (params)=>{
+    return axios.post(`${API}/place/update`,{
+        ...params
+    })
+}
+export const rootOrderOkRequest = (params)=>{
+    return axios.post(`${API}/place/update`,{
+        ...params
+    })
+}
+//场地数据管理
+export const rootPlaceAddAllRequest = (params)=>{
+    return axios.post(`${API}/place/rootadd`,{
+        ...params
+    })
+}
+export const rootPlaceDelAllRequest = (params)=>{
+    return axios.post(`${API}/place/rootdelall`,{
+        ...params
     })
 }

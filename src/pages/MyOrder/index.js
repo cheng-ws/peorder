@@ -1,9 +1,10 @@
 import React, { Component,Fragment } from 'react'
-import { Card, Form, Input, Button, Table, Tag, DatePicker, message } from 'antd'
+import { Card, Form, Input, Button, Table, Tag, DatePicker, message,Modal } from 'antd'
 import { connect } from 'react-redux'
 import {myorderpagesearch,myOrderCancel,myOrderDel} from '../../actions/myorder'
 import moment from 'moment'
 const FormItem = Form.Item;
+const {confirm} = Modal;
 const mapState=state=>({
     list:state.myorder.list,
     total:state.myorder.total,
@@ -80,43 +81,67 @@ class MyOrder extends Component {
     }
     //取消预约
     handleCancle = (record) => {
-        const params = {
-            id:record.id
-        }
-       this.props.myOrderCancel(params)
-       .then((res) => {
-            if (res.data.err === 0) {
-                this.handleMyPerson();
-                message.success('取消成功，欢迎再次预约！')
-            } else {
-                this.handleMyPerson();
-                message.error('取消失败，请重试！')
-            }
-        })
-        .catch(()=>{
-            this.handleMyPerson();
-            message.error('取消失败，请重试！')
-        })
-       
+        let _this = this
+        confirm({
+            title: `您确定要取消 ${record.place_name} 这个预约数据吗？`,
+            content: `该预约数据时间段：${moment(record.time).format("YYYY-MM-DD")+' '+ record.title}`,
+            okText: '确认',
+            cancelText: '取消',
+            onOk() {
+                const params = {
+                    id:record.id
+                }
+               _this.props.myOrderCancel(params)
+               .then((res) => {
+                    if (res.data.err === 0) {
+                        _this.handleMyPerson();
+                        message.success('取消成功，欢迎再次预约！')
+                    } else {
+                        _this.handleMyPerson();
+                        message.error('取消失败，请重试！')
+                    }
+                })
+                .catch(()=>{
+                    _this.handleMyPerson();
+                    message.error('取消失败，请重试！')
+                })
+            },
+            onCancel() {
+                console.log('取消');
+            },
+        });   
     }
     handleDel=(record)=>{
-        const params = {
-            id:record.id
-        }
-        this.props.myOrderDel(params)
-        .then((res) => {
-            if (res.data.err === 0) {
-                this.handleMyPerson();
-                message.success('删除成功，欢迎再次预约！')
-            } else {
-                this.handleMyPerson();
-                message.error('删除失败，请重试！')
-            }
-        })
-        .catch(()=>{
-            this.handleMyPerson();
-            message.error('删除失败，请重试！')
-        })
+        let _this = this
+        confirm({
+            title: `您确定要删除 ${record.place_name} 这个预约数据吗？`,
+            content: `该预约数据时间段：${moment(record.time).format("YYYY-MM-DD")+' '+ record.title}`,
+            okText: '确认',
+            cancelText: '取消',
+            onOk() {
+                const params = {
+                    id:record.id
+                }
+                _this.props.myOrderDel(params)
+                .then((res) => {
+                    if (res.data.err === 0) {
+                        _this.handleMyPerson();
+                        message.success('删除成功，欢迎再次预约！')
+                    } else {
+                        _this.handleMyPerson();
+                        message.error('删除失败，请重试！')
+                    }
+                })
+                .catch(()=>{
+                    _this.handleMyPerson();
+                    message.error('删除失败，请重试！')
+                }) 
+            },
+            onCancel() {
+                console.log('取消');
+            },
+        });
+        
     }
     //查询
     handleSearch = () => {

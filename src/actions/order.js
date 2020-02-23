@@ -19,6 +19,24 @@ const orderFailed = ()=>{
         type:actionTypes.ORDER_FAILED
     }
 }
+const orderDetailStart=()=>{
+    return {
+        type:actionTypes.ORDERDETAIL_START
+    }
+}
+const orderDetailSuccess = (data)=>{
+    return {
+        type:actionTypes.ORDERDETAIL_SUCCESS,
+        payload:{
+            data
+        }
+    }
+}
+const orderDetailFailed = ()=>{
+    return {
+        type:actionTypes.ORDERDETAIL_FAILED
+    }
+}
 export const getorderplacename=(data)=>{
     return dispatch=>{
         dispatch(orderStart())
@@ -35,13 +53,13 @@ export const getorderplacename=(data)=>{
 }
 export const getorderplacenamedetail=(data)=>{
     return dispatch=>{
-        dispatch(orderStart())
+        dispatch(orderDetailStart())
         orderPlaceNameDetail(data)
             .then(resp => {
                 if (resp.data.err === 0) {
-                    dispatch(orderSuccess(resp.data.data))
+                    dispatch(orderDetailSuccess(resp.data.data))
                 } else {
-                    dispatch(orderFailed())
+                    dispatch(orderDetailFailed())
                 }
             }) 
     }

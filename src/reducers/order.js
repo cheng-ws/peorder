@@ -2,7 +2,7 @@ import actionTypes from '../actions/actionType'
 
 const initState ={
     list:[],
-    total:0
+    data:[] 
 }
 export default (state=initState,action) => {
     switch(action.type) {
@@ -17,8 +17,20 @@ export default (state=initState,action) => {
             }
         case actionTypes.ORDER_FAILED:
             return {
-                list:[],
-                total:0
+                list:[]
+            }
+        case actionTypes.ORDERDETAIL_START:
+            return {
+                ...state
+            }
+        case actionTypes.ORDERDETAIL_SUCCESS:
+            return {
+                ...state,
+                data: action.payload.data
+            }
+        case actionTypes.ORDERDETAIL_FAILED:
+            return {
+                data: []
             }
         default:
             return state;

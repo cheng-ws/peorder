@@ -8,8 +8,13 @@ import {
   Order,
   OrderDetail,
   MyOrder,
-  MyMessages
+  MyMessages,
+  RootOrder,
+  RootUser,
+  RootPlace
+
 } from '../pages'
+import NoAuth from '../pages/NoAuth'
 
 export const mainRouter = [
     {
@@ -80,6 +85,35 @@ export const adminRouter = [
         isNav:true,
         icon:'idcard',
         roles:['1','2']
+    },
+    {
+        pathname:'/admin/rootorder',
+        component: RootOrder,
+        title:'预约数据管理',
+        isNav:true,
+        icon:'pie-chart',
+        roles:['2']
+    },
+    {
+        pathname:'/admin/rootuser',
+        component: RootUser,
+        title:'用户数据管理',
+        isNav:true,
+        icon:'team',
+        roles:['2']
+    },
+    {
+        pathname:'/admin/rootplace',
+        component: RootPlace,
+        title:'场地数据管理',
+        isNav:true,
+        icon:'heat-map',
+        roles:['2']
+    },
+    {
+        pathname:'/admin/noauth',
+        component: NoAuth,
+        isNav: false,
+        roles:['1','2']
     }
-    
 ]

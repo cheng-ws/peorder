@@ -40,15 +40,35 @@ const MyMessages = Loadable({
     loader:()=>import('./MyMessages'),
     loading:Loading
 })
+const NoAuth = Loadable({
+    loader:()=>import('./NoAuth'),
+    loading:Loading
+})
+const RootOrder = Loadable({
+    loader:()=>import('./RootOrder'),
+    loading:Loading
+})
+const RootUser = Loadable({
+    loader:()=>import('./RootUser'),
+    loading:Loading
+})
+const RootPlace = Loadable({
+    loader:()=>import('./RootPlace'),
+    loading:Loading
+})
 export {
     Login,
     Reg,
     NotFound,
+    NoAuth,
     Home,
     Types,
     TypesDetail,
     Order,
     OrderDetail,
     MyOrder,
-    MyMessages
+    MyMessages,
+    RootOrder,
+    RootUser,
+    RootPlace
 }

@@ -23,8 +23,6 @@ export default (state=initState,action)=>{
         case actionTypes.LOGIN_FAILED:
             return {
                 id:'',
-                displayName:'',
-                avatar:'',
                 islogin:true,
                 isLogin:false,
                 role:''

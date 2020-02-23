@@ -4,7 +4,7 @@ import {Route,Switch,Redirect,withRouter} from 'react-router-dom'
 import {adminRouter} from './routes'
 import {Frame} from './components'
 import {connect} from 'react-redux'
-const menus=adminRouter.filter(route=>route.isNav===true)
+
 const mapState = state => ({
   isLogin:state.user.isLogin,
   role:state.user.role,
@@ -18,6 +18,7 @@ class App extends Component {
     // const {login:{isLogin}}=this.props;
      
     const islogin = localStorage.getItem('isLogin')?true:this.props.isLogin
+    const menus=adminRouter.filter(route=>route.isNav===true&&route.roles.includes(this.props.role))
     return (
       
       islogin
@@ -32,11 +33,8 @@ class App extends Component {
                          path={route.pathname} 
                          exact={route.exact}
                          render={(routerProps)=>{
-                          //  console.log(route.roles.includes(this.props.role))
-                           const hasPremission =route.roles.includes(this.props.role);
+                           const hasPremission = route.roles.includes(this.props.role);
                            return hasPremission?<route.component {...routerProps} />:<Redirect to="/admin/noauth" />
-                           
-                          // return <route.component {...routerProps} />
                       }}/>
                   ) 
               

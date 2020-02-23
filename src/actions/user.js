@@ -1,6 +1,6 @@
 import actionTypes from './actionType'
-import {loginRequest,userAddRequest} from '../request'
-
+import {loginRequest,userAddRequest,userUpdateRequest,loginOutRequest,getIsloginCountRequest} from '../request'
+import { message } from 'antd'
 const loginStart =()=>{
     return {
         type:actionTypes.LOGIN_START
@@ -16,9 +16,6 @@ const loginSuccess=(userInfo)=>{
     }
 }
 const loginFailed =()=>{
-    localStorage.removeItem('isLogin')
-    localStorage.removeItem('userInfo')
-    
     return {
         type:actionTypes.LOGIN_FAILED
     }
@@ -28,9 +25,32 @@ export const userAdd = (params) => {
         return userAddRequest(params)
     }
 }
-export const loginOut = ()=> {
+export const userUpdate = (params)=>{
     return dispatch=>{
-        dispatch(loginFailed())
+        userUpdateRequest(params)
+        .then(resp=>{
+            if(resp.data.err===0){
+                localStorage.setItem('userInfo',JSON.stringify(resp.data.data))
+                dispatch(loginSuccess(resp.data.data))
+                message.success('更新成功！')
+            }else {
+                message.warning('更新失败，请刷新重试！')
+            } 
+        })
+    }
+}
+export const loginOut = (params)=> {
+    return dispatch=>{
+          loginOutRequest(params)
+          .then(resp=>{
+              if(resp.data.err===0){
+                localStorage.removeItem('isLogin')
+                localStorage.removeItem('userInfo')
+                dispatch(loginFailed()) 
+              }else{
+                message.warning("退出错误，请刷新重试!")
+              }
+          })
     }
 }
 export const login =(userInfo) =>{
@@ -38,19 +58,17 @@ export const login =(userInfo) =>{
         dispatch(loginStart())
         loginRequest(userInfo)
         .then(resp=>{
-            console.log(resp)
             if(resp.data.err===0){
                 localStorage.setItem('userInfo',JSON.stringify(resp.data.data))
-                // const {authToken,...userInfo}=resp.data.data;
-                // if(userInfo.remember===true){
-                  
-                // }else {
-                //     window.sessionStorage.setItem('userInfo',JSON.stringify(userInfo))
-                // }
                 dispatch(loginSuccess(resp.data.data))
             }else {
                 dispatch(loginFailed())
             }
         })
+    }
+}
+export const getIsloginCount = ()=>{
+    return dispatch=>{
+        return  getIsloginCountRequest()
     }
 }

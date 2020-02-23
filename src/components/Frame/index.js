@@ -1,26 +1,53 @@
 import React,{Component} from 'react'
-import {Layout,Menu,Icon,Dropdown,Avatar} from 'antd'
+import {Layout,Menu,Icon,Dropdown,Avatar,Typography,Tag} from 'antd'
 import logo from './logo.png'
 import './frame.less'
 import {withRouter} from 'react-router-dom'
 import {connect} from 'react-redux'
-import {loginOut} from '../../actions/user'
+import {loginOut,getIsloginCount} from '../../actions/user'
 const {Header,Content,Sider} = Layout;
- const mapState = state => {
-     const {username} =state.user
-    return  {username}
-}
+const {Title} = Typography;
+ 
+const mapState = state =>({
+    username: state.user.username,
+    id:state.user.id,
+    autograph: state.user.autograph?state.user.autograph:""
+})
 @withRouter
 
-@connect(mapState,{loginOut})
+@connect(mapState,{loginOut,getIsloginCount})
 class Frame extends Component {
+    state={
+        count:"",
+        getUserCount:""
+    }
+    getCount=()=>{
+        this.props.getIsloginCount()
+            .then(res=>{
+                if(res.data.err===0){
+                    this.setState({
+                        count:res.data.data
+                    })
+                }
+        })
+    }
+    componentDidMount(){
+        this.getCount()
+       const getUserCount= setInterval(() => {
+             this.getCount()
+        }, 1000*60);
+        this.setState({
+            getUserCount
+        })
+    }
     onMenuClick=({key})=>{
         // {item,key,keyPath,domEvent}
         this.props.history.push(key)
     }
     onDropdownMenuClick=({key})=>{
         if(key==='/login'){
-            this.props.loginOut()
+            clearInterval(this.state.getUserCount)
+            this.props.loginOut(this.props.id)
         }else {
             this.props.history.push(key)
         }
@@ -41,6 +68,10 @@ class Frame extends Component {
                 <Header className="header-top">
                     <div className="header-logo">
                         <img src={logo} alt="logo" />
+                    </div> 
+                    <div className="header-title"> 
+                        <Title level={4}>{this.props.autograph}<Tag color="" style={{marginLeft: 20}}>{'当前在线人数：'+this.state.count}</Tag></Title>
+                        
                     </div>
                     <div className="header-user">
                         <Dropdown overlay={this.renderDropdown}>

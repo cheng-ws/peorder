@@ -10,36 +10,7 @@ const mapState = state=>({
 @withRouter
 @connect(mapState,{getorderplacename})
 class Order extends Component {
-      data = [
-        {
-            key: 'yumao',
-            title: '羽毛球',
-        },
-        {
-            key: 'lan',
-            title: '篮球',
-        },
-        {
-            key: 'pai',
-            title: '排球',
-        },
-        {
-            key: 'pingpong',
-            title: '乒乓球',
-        },
-        {
-            key: 'wang',
-            title: '网球',
-        },
-        {
-            key: 'zu',
-            title: '足球',
-        },
-        {
-            key: 'ticao',
-            title: '体操'
-        }
-    ];
+       
     handlePlaceDetail=(item)=>{
          
         // window.location.href=`/placesearch/${item.key}`;

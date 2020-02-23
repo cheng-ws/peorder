@@ -1,4 +1,4 @@
-import React, { Component} from 'react' //Fragement
+import React, { Component,Fragment} from 'react' //Fragement
 import { List, Avatar, Tag, Button, Modal, Card, Form, DatePicker, Divider, message } from 'antd';
 import moment from 'moment'
 import { connect } from 'react-redux'
@@ -6,19 +6,11 @@ import {getorderplacenamedetail,orderplaceperson} from '../../actions/order'
 const { confirm } = Modal;
 const FormItem = Form.Item;
 const mapState = state=>({
-    list:state.order.list,
+    list:state.order.data,
     username:state.user.username
 })
  @connect(mapState,{getorderplacenamedetail,orderplaceperson})
-// const TagText = ({ color, text }) => (
-//     <span>
-//         <Tag color={color} style={{marginLeft: '50px'}} onChange={(color,checked)=>{
-//              const username=localStorage.getItem['userName'];
-//              console.log(checked,color,username);
-//         }}>
-//         {text}</Tag>
-//     </span>
-// );
+ 
 
 class OrderDetail extends Component {
     constructor(props) {
@@ -134,7 +126,7 @@ class OrderDetail extends Component {
                                                  {item.place_id}
                                              </Avatar>
                                              }
-                                        title={item.time?item.time.split(' ')[0]:""}
+                                            title={<Fragment><Tag>{item.place_name} : {item.time?item.time.split(' ')[0]:""}</Tag></Fragment>}
                                         description={item.title}
                                     />    
                                   }>
@@ -151,7 +143,6 @@ class OrderDetail extends Component {
                                         <Tag color="red" style={{ marginTop: '20px' }} title="已被预约">已被预约</Tag> 
                                         : 
                                         <Button type="primary" size="small" style={{ marginTop: '20px' }} title="可预约" onClick={() => this.handleOrder(item)}>可预约</Button>
-
                                 }
                             </Card>
                         </List.Item>                 

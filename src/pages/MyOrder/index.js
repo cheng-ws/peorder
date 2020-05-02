@@ -1,5 +1,5 @@
 import React, { Component,Fragment } from 'react'
-import { Card, Form, Input, Button, Table, Tag, DatePicker, message,Modal } from 'antd'
+import { Card, Form, Input, Button, Table, Tag, DatePicker, message,Modal,Select } from 'antd'
 import { connect } from 'react-redux'
 import {myorderpagesearch,myOrderCancel,myOrderDel} from '../../actions/myorder'
 import moment from 'moment'
@@ -22,7 +22,8 @@ class MyOrder extends Component {
         list:[],
         current:1,
         pageSize:5,
-        isSearch:false
+        isSearch:false,
+        placeNum: '1号场地'
     }
     
     columns = [
@@ -30,6 +31,11 @@ class MyOrder extends Component {
             title: '序号',
             dataIndex: 'key',
             align:'center'
+        },
+        {
+            title: '场地号',
+            dataIndex: 'placeNum',
+            align: 'center'
         },
         {
             title: '场地名称',
@@ -75,9 +81,16 @@ class MyOrder extends Component {
             pageSize: 5,
             place_person: this.props.username,
             time:"",
-            place_name:""
+            place_name:"",
+            placeNum: this.state.placeNum,
          }
         this.props.myorderpagesearch(params)
+    }
+    //几号场地的选择
+    onSelectChange = (val) => {
+        this.setState({
+            placeNum: val,
+        })
     }
     //取消预约
     handleCancle = (record) => {
@@ -145,12 +158,13 @@ class MyOrder extends Component {
     }
     //查询
     handleSearch = () => {
-        const {time,place_name,current,pageSize}=this.state;
+        const {time,place_name,current,pageSize,placeNum}=this.state;
         const params = {
             page:current,
             pageSize,
             time,
             place_name,
+            placeNum,
             place_person:this.props.username
         }
         this.props.myorderpagesearch(params)
@@ -246,6 +260,13 @@ class MyOrder extends Component {
             <div>
                 <Card title="我的预约">
                     <Form layout="inline" >
+                    <FormItem label="场地号">
+                            <Select defaultValue={this.state.placeNum} onChange={this.onSelectChange}>
+                                <Select.Option value="1号场地">1号场地</Select.Option>
+                                <Select.Option value="2号场地">2号场地</Select.Option>
+                                <Select.Option value="3号场地">3号场地</Select.Option>
+                            </Select>
+                        </FormItem>
                         <FormItem label="场地名称" >
                             <Input type="text" placeholder="请输入场地名称" onChange={this.onPlaceName}/>
                         </FormItem>

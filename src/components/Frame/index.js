@@ -1,5 +1,5 @@
 import React,{Component} from 'react'
-import {Layout,Menu,Icon,Dropdown,Avatar,Typography,Tag} from 'antd'
+import {Layout,Menu,Icon,Dropdown,Avatar,Typography} from 'antd'
 import logo from './logo.png'
 import './frame.less'
 import {withRouter} from 'react-router-dom'
@@ -47,7 +47,10 @@ class Frame extends Component {
     onDropdownMenuClick=({key})=>{
         if(key==='/login'){
             clearInterval(this.state.getUserCount)
-            this.props.loginOut(this.props.id)
+             const params= {
+                 id:this.props.id
+             }
+            this.props.loginOut(params)
         }else {
             this.props.history.push(key)
         }
@@ -70,7 +73,7 @@ class Frame extends Component {
                         <img src={logo} alt="logo" />
                     </div> 
                     <div className="header-title"> 
-                        <Title level={4}>{this.props.autograph}<Tag color="" style={{marginLeft: 20}}>{'当前在线人数：'+this.state.count}</Tag></Title>
+                        <Title level={4}>{this.props.autograph}</Title>
                         
                     </div>
                     <div className="header-user">

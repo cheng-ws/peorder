@@ -21,6 +21,7 @@ class RootPlace extends Component {
         place_title:'',
         place_name:'',
         list:[],
+        placeNum: '1号场地'
     }
     
     
@@ -63,13 +64,14 @@ class RootPlace extends Component {
     }
     //查询
     handleSearch = () => {
-        const {time,place_title}=this.state;
+        const {time,place_title,placeNum}=this.state;
         if(time===""||place_title===""){
             message.warning("请先选择查询条件")
         }else{
             const params = {
                 time,
-                place_title
+                place_title,
+                placeNum
             }
             this.props.getrootplacedetail(params)
             let settime=setTimeout(()=>{
@@ -94,16 +96,23 @@ class RootPlace extends Component {
            place_title:option.props.children
        })
     }
+    //获取场地号
+    onSelectChange = (val) => {
+        this.setState({
+            placeNum: val,
+        })
+    }
     //全部删除
     handleDelAll=()=>{
-        const { time, place_title,place_name } = this.state;
+        const { time, place_title,place_name,placeNum } = this.state;
         if (time === "" || place_title === "") {
             message.warning("请先选择要全部删除的预约数据条件")
         } else {
             const params = {
                 time,
                 place_title,
-                place_name
+                place_name,
+                placeNum
             }
             let _this = this
             confirm({
@@ -141,14 +150,15 @@ class RootPlace extends Component {
     }
     //整体添加
     handleAddAll=()=>{
-        const { time, place_title,place_name } = this.state;
+        const { time, place_title,place_name,placeNum } = this.state;
         if (time === "" || place_title === "") {
             message.warning("请先选择添加的预约条件")
         } else {
             const params = {
                 time,
                 place_title,
-                place_name
+                place_name,
+                placeNum
             }
             let _this = this
             confirm({
@@ -194,6 +204,13 @@ class RootPlace extends Component {
             <div>
                 <Card title="预约数据管理">
                     <Form layout="inline" >
+                    <FormItem label="场地号">
+                        <Select defaultValue="1号场地" onChange={this.onSelectChange}>
+                            <Select.Option value="1号场地">1号场地</Select.Option>
+                            <Select.Option value="2号场地">2号场地</Select.Option>
+                            <Select.Option value="3号场地">3号场地</Select.Option>
+                        </Select>
+                    </FormItem>
                         <FormItem label="场地名称" >
                             <Select placeholder="请选择场地名称" style={{ width: 150 }} onChange={this.handleSelectChange}>
                                 {
@@ -207,6 +224,7 @@ class RootPlace extends Component {
                         <FormItem label="所预约场地时间" >
                             <DatePicker placeholder="请选择日期" format="YYYY-MM-DD" onChange={this.onTimeChange} />
                         </FormItem>
+                        <br/>
                         <FormItem>
                             <Button type="primary" onClick={this.handleSearch}>查询</Button>
                         </FormItem>

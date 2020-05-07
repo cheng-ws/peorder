@@ -17,8 +17,8 @@ const mapState = state => ({
 class RootOrder extends Component {
     state = {
         color: "orange",
-        time: '',
-        place_title: '',
+        time: moment(Date.now()),
+        place_title: '羽毛球',
         list: [],
         placeNum: '1号场地'
     }
@@ -26,6 +26,7 @@ class RootOrder extends Component {
 
     componentDidMount() {
         this.props.getorderplacename()
+        this.handleSearch()
     }
     //预约
     handleOrderOk = (item) => {
@@ -38,7 +39,7 @@ class RootOrder extends Component {
         }
         confirm({
             title: `您确定要预约${item.time.split(' ')[0]}  ${item.title}这个时间段吗？`,
-            content: `${item.description}`,
+            content: `${item.placeNum}-${item.place_name}`,
             okText: '确认',
             cancelText: '取消',
             onOk() {
@@ -73,7 +74,7 @@ class RootOrder extends Component {
         let _this = this;
         confirm({
             title: `您确定要取消${item.time.split(' ')[0]}  ${item.title}这个时间段的预约吗？`,
-            content: `${item.description}`,
+            content: `${item.placeNum}-${item.place_name}`,
             okText: '确认',
             cancelText: '取消',
             onOk() {
@@ -105,7 +106,7 @@ class RootOrder extends Component {
         let _this = this
         confirm({
             title: `您确定要删除${item.time.split(' ')[0]}  ${item.title}这个时间段吗？`,
-            content: `${item.description}`,
+            content: `${item.placeNum}-${item.place_name}`,
             okText: '确认',
             cancelText: '取消',
             onOk() {
@@ -137,10 +138,12 @@ class RootOrder extends Component {
             message.warning("请先选择查询条件")
         } else {
             const params = {
-                time,
+                time: moment(time).format('YYYY-MM-DD'),
                 place_title,
                 placeNum
             }
+            console.log(params);
+            
             this.props.getrootorderdetail(params)
             let settime = setTimeout(() => {
                 if (this.props.list.length === 0) {
@@ -170,33 +173,30 @@ class RootOrder extends Component {
         })
     }
     render() {
-
-        const list = this.props.list ? this.props.list : this.state.list
+        const list = this.props.list 
         const data = this.props.data
-
         return (
             <div>
                 <Card title="预约数据管理">
                     <Form layout="inline" >
                         <FormItem label="场地号">
-                            <Select defaultValue="1号场地" onChange={this.onSelectChange}>
+                            <Select defaultValue={this.state.placeNum} onChange={this.onSelectChange}>
                                 <Select.Option value="1号场地">1号场地</Select.Option>
                                 <Select.Option value="2号场地">2号场地</Select.Option>
                                 <Select.Option value="3号场地">3号场地</Select.Option>
                             </Select>
                         </FormItem>
                         <FormItem label="场地名称" >
-                            <Select placeholder="请选择场地名称" style={{ width: 150 }} onChange={this.handleSelectChange}>
+                            <Select placeholder="请选择场地名称" defaultValue={this.state.place_title} style={{ width: 150 }} onChange={this.handleSelectChange}>
                                 {
                                     data ? data.map((item) => {
                                         return <Option value={item.place_title} key={item.place_name}>{item.place_title}</Option>
                                     }) : ""
                                 }
-
                             </Select>
                         </FormItem>
                         <FormItem label="所预约场地时间" >
-                            <DatePicker placeholder="请选择日期" format="YYYY-MM-DD" onChange={this.onTimeChange} />
+                            <DatePicker placeholder="请选择日期" defaultValue={moment()} format="YYYY-MM-DD" onChange={this.onTimeChange} />
                         </FormItem>
                         <FormItem>
                             <Button type="primary" onClick={this.handleSearch}>查询</Button>
@@ -211,6 +211,7 @@ class RootOrder extends Component {
                         renderItem={item => (
                             <List.Item>
                                 <Card
+                                    style={{height: 200,overflow: 'hidden'}}
                                     title={
                                         <Card.Meta
                                             avatar={
@@ -219,7 +220,7 @@ class RootOrder extends Component {
                                                 </Avatar>
                                             }
                                             title={<Fragment><Tag>{item.place_name}</Tag><Tag>{item.time ? item.time.split(' ')[0] : ""}</Tag></Fragment>}
-                                            description={item.title}
+                                        description={<Fragment><Tag>{item.placeNum} : {item.title}</Tag></Fragment>}
                                         />
                                     }>
                                     {

@@ -1,27 +1,27 @@
 import React, { Component,Fragment } from 'react'
-import { Card, Form, Input, Button, Table, Tag, DatePicker, message,Modal,Select } from 'antd'
+import { Card, Form,  Button, Table, Tag, DatePicker, message,Modal,Select } from 'antd'
 import { connect } from 'react-redux'
+import { getorderplacename } from '../../actions/order'
 import {myorderpagesearch,myOrderCancel,myOrderDel} from '../../actions/myorder'
 import moment from 'moment'
 const FormItem = Form.Item;
 const {confirm} = Modal;
+const {Option} = Select;
 const mapState=state=>({
+    data: state.order.list,
     list:state.myorder.list,
     total:state.myorder.total,
     username:state.user.username
 })
-@connect(mapState,{myorderpagesearch,myOrderCancel,myOrderDel})
+@connect(mapState,{getorderplacename,myorderpagesearch,myOrderCancel,myOrderDel})
 
 class MyOrder extends Component {
     state={
-        time:'',
-        oldtime:'',
-        oldcurrent:'',
-        oldplace_name:'',
-        place_name:'',
+        time:moment(Date.now()),
+        place_name:'羽毛球',
         list:[],
         current:1,
-        pageSize:5,
+        pageSize:4,
         isSearch:false,
         placeNum: '1号场地'
     }
@@ -71,21 +71,10 @@ class MyOrder extends Component {
 
     ]
     componentDidMount() {
-        this.handleMyPerson();  
+        this.props.getorderplacename();
+        this.handleSearch();  
     }
-    //获取已预约的数据
-    handleMyPerson = () => {
-
-        const params = {
-            page: 1,
-            pageSize: 5,
-            place_person: this.props.username,
-            time:"",
-            place_name:"",
-            placeNum: this.state.placeNum,
-         }
-        this.props.myorderpagesearch(params)
-    }
+    
     //几号场地的选择
     onSelectChange = (val) => {
         this.setState({
@@ -96,7 +85,7 @@ class MyOrder extends Component {
     handleCancle = (record) => {
         let _this = this
         confirm({
-            title: `您确定要取消 ${record.place_name} 这个预约数据吗？`,
+            title: `您确定要取消${record.placeNum}-${record.place_name} 这个预约数据吗？`,
             content: `该预约数据时间段：${moment(record.time).format("YYYY-MM-DD")+' '+ record.title}`,
             okText: '确认',
             cancelText: '取消',
@@ -107,15 +96,15 @@ class MyOrder extends Component {
                _this.props.myOrderCancel(params)
                .then((res) => {
                     if (res.data.err === 0) {
-                        _this.handleMyPerson();
+                        _this.handleSearch();
                         message.success('取消成功，欢迎再次预约！')
                     } else {
-                        _this.handleMyPerson();
+                        _this.handleSearch();
                         message.error('取消失败，请重试！')
                     }
                 })
                 .catch(()=>{
-                    _this.handleMyPerson();
+                    _this.handleSearch();
                     message.error('取消失败，请重试！')
                 })
             },
@@ -124,10 +113,11 @@ class MyOrder extends Component {
             },
         });   
     }
+    //删除预约
     handleDel=(record)=>{
         let _this = this
         confirm({
-            title: `您确定要删除 ${record.place_name} 这个预约数据吗？`,
+            title: `您确定要删除 ${record.placeNum}-${record.place_name} 这个预约数据吗？`,
             content: `该预约数据时间段：${moment(record.time).format("YYYY-MM-DD")+' '+ record.title}`,
             okText: '确认',
             cancelText: '取消',
@@ -138,15 +128,15 @@ class MyOrder extends Component {
                 _this.props.myOrderDel(params)
                 .then((res) => {
                     if (res.data.err === 0) {
-                        _this.handleMyPerson();
+                        _this.handleSearch();
                         message.success('删除成功，欢迎再次预约！')
                     } else {
-                        _this.handleMyPerson();
+                        _this.handleSearch();
                         message.error('删除失败，请重试！')
                     }
                 })
                 .catch(()=>{
-                    _this.handleMyPerson();
+                    _this.handleSearch();
                     message.error('删除失败，请重试！')
                 }) 
             },
@@ -159,41 +149,39 @@ class MyOrder extends Component {
     //查询
     handleSearch = () => {
         const {time,place_name,current,pageSize,placeNum}=this.state;
+        let date = moment(time).format('YYYY-MM-DD')
         const params = {
             page:current,
             pageSize,
-            time,
+            time: date,
             place_name,
             placeNum,
             place_person:this.props.username
         }
         this.props.myorderpagesearch(params)
-        this.setState({
-            oldtime:time,
-            oldplace_name:place_name,
-            oldcurrent:current
-        })
+        let settime = setTimeout(() => {
+            if (this.props.list.length === 0) {
+                message.warning("暂无该数据")
+                clearTimeout(settime)
+            }
+        }, 1000)
     }
     //获取预约场地时间
     onTimeChange=(date,dateString)=>{
-        const {time}=this.state
        this.setState({
-           oldtime:time,
            time: dateString
        })
     }
-    //获取预约场地名称
-    onPlaceName=(e)=>{
-        const {place_name}=this.state
-       this.setState({
-           oldplace_name:place_name,
-           place_name:e.target.value
-       })
-        
+    //获取场地名称
+    handleSelectChange = (value) => {
+        this.setState({
+            place_name: value
+        })
     }
     //页码改变
     handlePageChange=(page,pageSize)=>{
-        const {time,place_name,oldtime,oldplace_name}=this.state
+        const {time,place_name,placeNum}=this.state
+        let date = moment(time).format('YYYY-MM-DD')
              this.setState({
                    current: page,
                    pageSize
@@ -201,28 +189,18 @@ class MyOrder extends Component {
                         const params = {
                            page: this.state.current,
                            pageSize: this.state.pageSize,
-                           place_person: this.props.username
+                           time: date,
+                           place_name,
+                           place_person: this.props.username,
+                           placeNum,
                         }
-                   if(oldplace_name===place_name&&oldtime===time) {
-                        const data = {
-                             ...params,
-                             time:time,
-                             place_name:place_name
-                        }
-                        this.props.myorderpagesearch(data)
-                   }else {
-                        const data ={
-                            ...params,
-                            time:oldtime,
-                            place_name:oldplace_name
-                        }
-                        this.props.myorderpagesearch(data)
-                   }   
+                        this.props.myorderpagesearch(params)
                })     
     }
     //pageSize每页条数改变
     handleShowSizeChange=(current,size)=>{
-        const {time,place_name,oldtime,oldplace_name}=this.state
+        const {time,place_name,placeNum}=this.state
+        let date = moment(time).format('YYYY-MM-DD')
            this.setState({
                current:1,
                pageSize:size
@@ -230,23 +208,12 @@ class MyOrder extends Component {
                    const params = {
                        page: this.state.current,
                        pageSize: this.state.pageSize,
-                       place_person: this.props.username
+                       place_person: this.props.username,
+                       time: date,
+                       place_name,
+                       placeNum,
                    }
-                   if (oldplace_name === place_name && oldtime === time) {
-                       const data = {
-                           ...params,
-                           time: time,
-                           place_name: place_name
-                       }
-                       this.props.myorderpagesearch(data)
-                   } else {
-                       const data = {
-                           ...params,
-                           time: oldtime,
-                           place_name: oldplace_name
-                       }
-                       this.props.myorderpagesearch(data)
-                   }
+                   this.props.myorderpagesearch(params)
            })
     }
     render() {
@@ -255,23 +222,30 @@ class MyOrder extends Component {
             key:(this.state.current-1)*this.state.pageSize+index+1
         }))
         const total = this.props.total
-        console.log(this.state)
+        const data = this.props.data
         return (
             <div>
                 <Card title="我的预约">
                     <Form layout="inline" >
-                    <FormItem label="场地号">
-                            <Select defaultValue={this.state.placeNum} onChange={this.onSelectChange}>
+                        <FormItem label="场地号">
+                            <Select defaultValue={this.state.placeNum} style={{width: 100}} onChange={this.onSelectChange}>
                                 <Select.Option value="1号场地">1号场地</Select.Option>
                                 <Select.Option value="2号场地">2号场地</Select.Option>
                                 <Select.Option value="3号场地">3号场地</Select.Option>
                             </Select>
                         </FormItem>
                         <FormItem label="场地名称" >
-                            <Input type="text" placeholder="请输入场地名称" onChange={this.onPlaceName}/>
+                            <Select placeholder="请选择场地名称" defaultValue={this.state.place_name} style={{ width: 150 }} onChange={this.handleSelectChange}>
+                                {
+                                    data ? data.map((item) => {
+                                        return <Option value={item.place_title} key={item.place_name}>{item.place_title}</Option>
+                                    }) : ""
+                                }
+
+                            </Select>
                         </FormItem>
                         <FormItem label="预约场地-时间段" >
-                            <DatePicker placeholder="请选择日期" format="YYYY-MM-DD" onChange={this.onTimeChange} />
+                            <DatePicker placeholder="请选择日期" defaultValue={this.state.time} format="YYYY-MM-DD" onChange={this.onTimeChange} />
                         </FormItem>
                         <FormItem>
                             <Button type="primary" onClick={this.handleSearch}>查询</Button>
@@ -294,7 +268,7 @@ class MyOrder extends Component {
                             showQuickJumper:true,
                             showSizeChanger:true,
                             onShowSizeChange:this.handleShowSizeChange,
-                            pageSizeOptions:["5","10","15"]
+                            pageSizeOptions:["4","8"]
                         }} 
                     />
 

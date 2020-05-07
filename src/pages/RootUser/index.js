@@ -14,12 +14,10 @@ const mapState=state=>({
 
 class RootUser extends Component {
     state={
-        oldcurrent:'',
-        oldusername:'',
         username:'',
         list:[],
         current:1,
-        pageSize:10,
+        pageSize:5,
         isSearch:false,
         isEdit:false,
         dataEdit:{},
@@ -79,38 +77,9 @@ class RootUser extends Component {
 
     ]
     componentDidMount() {
-        this.handleMyPerson();  
+        this.handleSearch();  
     }
-    //获取已预约的数据
-    handleMyPerson = () => {
-        const params = {
-            page: 1,
-            pageSize: 10,
-            username:""
-         }
-        this.props.rootuserpagesearch(params)
-    }
-    //取消预约
-     handleCancle = (record) => {
-    //     const params = {
-    //         id:record.id
-    //     }
-    //    this.props.myOrderCancel(params)
-    //    .then((res) => {
-    //         if (res.data.err === 0) {
-    //             this.handleMyPerson();
-    //             message.success('取消成功，欢迎再次预约！')
-    //         } else {
-    //             this.handleMyPerson();
-    //             message.error('取消失败，请重试！')
-    //         }
-    //     })
-    //     .catch(()=>{
-    //         this.handleMyPerson();
-    //         message.error('取消失败，请重试！')
-    //     })
-       
-     }
+    
     //编辑用户信息
     handleEdit=(record)=>{
         this.setState({
@@ -133,15 +102,15 @@ class RootUser extends Component {
                 _this.props.rootuserdel(params)
                     .then((res) => {
                         if (res.data.err === 0) {
-                            _this.handleMyPerson();
+                            _this.handleSearch();
                             message.success('删除成功，欢迎再次预约！')
                         } else {
-                            _this.handleMyPerson();
+                            _this.handleSearch();
                             message.error('删除失败，请重试！')
                         }
                     })
                     .catch(() => {
-                        _this.handleMyPerson();
+                        _this.handleSearch();
                         message.error('删除失败，请重试！')
                     })
             },
@@ -159,24 +128,29 @@ class RootUser extends Component {
             username
         }
         this.props.rootuserpagesearch(params)
-        this.setState({  
-            oldusername:username,
-            oldcurrent:current
-        })
+        let settime=setTimeout(()=>{
+            if(this.props.list.length===0&&current !==1){
+                const params = {
+                    page:current-1,
+                    pageSize,
+                    username
+                }
+                this.props.rootuserpagesearch(params)
+              clearTimeout(settime)
+            }  
+          },1000)
     }
      
     //获取用户名称
     onUserName=(e)=>{
-       const {username}=this.state
        this.setState({
-           oldusername:username,
            username:e.target.value
        })
         
     }
     //页码改变
     handlePageChange=(page,pageSize)=>{
-        const {username, oldusername,current}=this.state
+        const {username,current}=this.state
              this.setState({
                    current: page?page:current,
                    pageSize: pageSize?pageSize:this.state.pageSize
@@ -184,26 +158,15 @@ class RootUser extends Component {
                         const params = {
                            page: this.state.current,
                            pageSize: this.state.pageSize,
-                        }
-                        console.log(params)
-                   if(oldusername===username) {
-                        const data = {
-                             ...params,
-                             username:username
-                        }
-                        this.props.rootuserpagesearch(data)
-                   }else {
-                        const data ={
-                            ...params,
-                            username:oldusername
-                        }
-                        this.props.rootuserpagesearch(data)
-                   }   
+                           username,
+                        } 
+                        this.props.rootuserpagesearch(params)
+                         
                })     
     }
     //pageSize每页条数改变
     handleShowSizeChange=(current,size)=>{
-        const {username,oldusername}=this.state
+        const {username}=this.state
            this.setState({
                current:1,
                pageSize:size
@@ -211,20 +174,9 @@ class RootUser extends Component {
                    const params = {
                        page: this.state.current,
                        pageSize: this.state.pageSize,
+                       username: username,
                    }
-                   if (oldusername === username) {
-                       const data = {
-                           ...params,
-                           username: username
-                       }
-                       this.props.rootuserpagesearch(data)
-                   } else {
-                       const data = {
-                           ...params,
-                           username: oldusername
-                       }
-                       this.props.rootuserpagesearch(data)
-                   }
+                   this.props.rootuserpagesearch(params)
            })
     }
     //处理用户编辑的取消
@@ -267,7 +219,7 @@ class RootUser extends Component {
             isAdd:params,
             dataAdd:{}
         })
-        this.handleMyPerson()
+        this.handleSearch()
     }
     render() {
         const list = this.props.list.map((item,index)=>({
@@ -308,7 +260,7 @@ class RootUser extends Component {
                             showQuickJumper:true,
                             showSizeChanger:true,
                             onShowSizeChange:this.handleShowSizeChange,
-                            pageSizeOptions:["10","20","30"]
+                            pageSizeOptions:["5","10","15"]
                         }} 
                     />
                 </div>

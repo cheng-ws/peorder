@@ -18,46 +18,25 @@ class OrderDetail extends Component {
         this.state = {
             isModalVisible: false,
             color: 'orange',
-            time: moment().format('YYYY-MM-DD'),
+            time: moment(Date.now()),
             placeNum: '1号场地'
         };
 
     }
 
     componentDidMount() {
-        // console.log(this.props.match.params.placeName);
-        //   console.log(this.props.location.state);
         const { location } = this.props;
         let arr = location.pathname.split('/')
         let placeName = arr[3]
 
-        let title;
-        if (location.state && location.state.title) {
-            title = location.state.title;
-            localStorage.setItem('title', title);
-        } else {
-            title = localStorage.getItem('title');
-        }
-
         this.setState({
-            title,
+            title: localStorage.getItem('title'),
             placeName
         }, () => {
-            this.handlePlaces()
+            this.handleSearch()
         })
 
     }
-    handlePlaces = () => {
-        const params = {
-            time: this.state.time,
-            placeName: this.state.placeName,
-            placeNum: this.state.placeNum,
-        }
-        this.props.getorderplacenamedetail(params)
-        console.log(params);
-        
-    }
-
     handleOrder = (item) => {
         const { orderplaceperson } = this.props;
         let _this = this;
@@ -69,22 +48,22 @@ class OrderDetail extends Component {
 
         confirm({
             title: `您确定要预约${item.title}这个时间段吗？`,
-            content: `${item.description}`,
+            content: `${item.placeNum}-${moment(item.time).format('YYYY-MM-DD')}`,
             okText: '确认',
             cancelText: '取消',
             onOk() {
                 orderplaceperson(params)
                     .then((res) => {
                         if (res.data.err === 0) {
-                            _this.handlePlaces()
+                            _this.handleSearch()
                         } else {
                             message.warning('预约失败，请重试')
-                            _this.handlePlaces()
+                            _this.handleSearch()
                         }
                     })
                     .catch(() => {
                         message.warning('预约失败，请重试')
-                        _this.handlePlaces()
+                        _this.handleSearch()
                     })
 
 
@@ -95,8 +74,14 @@ class OrderDetail extends Component {
         });
     }
     handleSearch = () => {
-        this.handlePlaces();
+        const params = {
+            time: moment(this.state.time).format('YYYY-MM-DD'),
+            placeName: this.state.placeName,
+            placeNum: this.state.placeNum,
+        }
+        this.props.getorderplacenamedetail(params)
     }
+    //获取时间
     onTimeChange = (date, dateString) => {
         this.setState({
             time: dateString
@@ -110,9 +95,8 @@ class OrderDetail extends Component {
     }
     render() {
         const list = this.props.list
-        const title = localStorage.getItem('title')
         return (
-            <Card title={`预约-${title}-场地`}>
+            <Card title={`预约-${this.state.title}-场地`}>
                 <Form layout="inline" >
                     <FormItem label="场地号">
                         <Select defaultValue="1号场地" onChange={this.onSelectChange}>
@@ -122,7 +106,7 @@ class OrderDetail extends Component {
                         </Select>
                     </FormItem>
                     <FormItem label="日期" >
-                        <DatePicker placeholder="请选择日期" format="YYYY-MM-DD" onChange={this.onTimeChange} defaultValue={moment()} />
+                        <DatePicker placeholder="请选择日期" format="YYYY-MM-DD" onChange={this.onTimeChange} defaultValue={this.state.time} />
                     </FormItem>
                     <FormItem>
                         <Button type="primary" onClick={this.handleSearch}>查询</Button>
@@ -136,6 +120,7 @@ class OrderDetail extends Component {
                     renderItem={item => (
                         <List.Item>
                             <Card
+                                style={{height: 200,overflow: 'hidden'}}
                                 title={
                                     <Card.Meta
                                         avatar={
@@ -144,7 +129,7 @@ class OrderDetail extends Component {
                                             </Avatar>
                                         }
                                         title={<Fragment><Tag>{item.place_name} : {item.time ? item.time.split(' ')[0] : ""}</Tag></Fragment>}
-                                        description={item.title}
+                                        description={<Fragment><Tag>{item.placeNum} : {item.title}</Tag></Fragment>}
                                     />
                                 }>
                                 {

@@ -23,8 +23,9 @@ class Types extends Component {
                 hoverable
                 bordered
                 style={{ width: 200,height: 300,marginBottom:'15px'}}
-                cover={<img alt="example" width="100" height="100" src={item.url} onClick={()=>this.toDetail(item)} />}
+                cover={<img alt="example" width="100" height="100" src={item.url}  />}
                 key={item.url}
+                onClick={()=>this.toDetail(item)}
             >
                 <Meta title={item.name} description={item.des} />
             </Card>)

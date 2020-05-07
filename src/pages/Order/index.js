@@ -15,6 +15,7 @@ class Order extends Component {
          
         // window.location.href=`/placesearch/${item.key}`;
         // this.props.history.push(`/placesearch/${item.key}`);
+        localStorage.setItem('title',item.place_title)
         this.props.history.push({pathname:`/admin/order/${item.place_name}`,state:{title:item.place_title}})
     }
     componentDidMount() {

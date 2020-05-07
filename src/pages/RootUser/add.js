@@ -56,7 +56,7 @@ class RootUserAdd extends Component {
                             initialValue: data.username,
                             rules:[{required:true,message:"用户名必须填写"}]
                         })(
-                            <Input placeholder="请输入密码" />
+                            <Input placeholder="请输入用户名" />
                         )}
                     </Form.Item>
                     <Form.Item label="密码">

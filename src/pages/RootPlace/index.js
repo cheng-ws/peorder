@@ -3,6 +3,7 @@ import { Card, Form, Button, Tag, DatePicker, message,Select,List,Avatar,Modal }
 import { connect } from 'react-redux'
 import {getorderplacename} from '../../actions/order'
 import {getrootplacedetail,getrootplacedel,getrootplaceaddall,getrootplacedelall} from '../../actions/rootplace'
+import moment from 'moment'
  
 const FormItem = Form.Item;
 const { confirm } = Modal;
@@ -17,16 +18,17 @@ const mapState=state=>({
 class RootPlace extends Component {
     state={
         color:"orange",
-        time:'',
-        place_title:'',
-        place_name:'',
+        time: moment(Date.now()),
+        place_title:'羽毛球',
+        place_name:'yu',
         list:[],
         placeNum: '1号场地'
     }
     
     
     componentDidMount() {
-        this.props.getorderplacename()    
+        this.props.getorderplacename()  
+        this.handleSearch()  
     }
     
     //删除单条数据
@@ -36,7 +38,7 @@ class RootPlace extends Component {
         }
         let _this = this
         confirm({
-            title: `您确定要删除-${item.place_name}-这个时间段吗？`,
+            title: `您确定要删除-${item.placeNum}:${item.place_name}-这个时间段吗？`,
             content: `${item.time.split(' ')[0]}  ${item.title} `,
             okText: '确认',
             cancelText: '取消',
@@ -69,7 +71,7 @@ class RootPlace extends Component {
             message.warning("请先选择查询条件")
         }else{
             const params = {
-                time,
+                time: moment(time).format('YYYY-MM-DD'),
                 place_title,
                 placeNum
             }
@@ -105,19 +107,20 @@ class RootPlace extends Component {
     //全部删除
     handleDelAll=()=>{
         const { time, place_title,place_name,placeNum } = this.state;
+        let date = moment(time).format('YYYY-MM-DD')
         if (time === "" || place_title === "") {
             message.warning("请先选择要全部删除的预约数据条件")
         } else {
             const params = {
-                time,
+                time:date,
                 place_title,
                 place_name,
                 placeNum
             }
             let _this = this
             confirm({
-                title: `您确定要删除-${place_title}-这个场地的预约数据吗？`,
-                content: `预约数据时间为：${time}`,
+                title: `您确定要删除-${placeNum}:${place_title}-这个场地的预约数据吗？`,
+                content: `预约数据时间为：${date}`,
                 okText: '确认',
                 cancelText: '取消',
                 onOk() {
@@ -151,19 +154,20 @@ class RootPlace extends Component {
     //整体添加
     handleAddAll=()=>{
         const { time, place_title,place_name,placeNum } = this.state;
+        let date = moment(time).format('YYYY-MM-DD')
         if (time === "" || place_title === "") {
             message.warning("请先选择添加的预约条件")
         } else {
             const params = {
-                time,
+                time:date,
                 place_title,
                 place_name,
                 placeNum
             }
             let _this = this
             confirm({
-                title: `您确定要添加-${place_title}-这个场地的预约数据吗？`,
-                content: `可预约时间为：${time}`,
+                title: `您确定要添加-${placeNum}:${place_title}-这个场地的预约数据吗？`,
+                content: `可预约时间为：${date}`,
                 okText: '确认',
                 cancelText: '取消',
                 onOk() {
@@ -197,9 +201,9 @@ class RootPlace extends Component {
     
     render() {
          
-        const list = this.props.list?this.props.list:this.state.list
+        const list = this.props.list 
         const data = this.props.data
-         
+       
         return (
             <div>
                 <Card title="预约数据管理">
@@ -212,7 +216,7 @@ class RootPlace extends Component {
                         </Select>
                     </FormItem>
                         <FormItem label="场地名称" >
-                            <Select placeholder="请选择场地名称" style={{ width: 150 }} onChange={this.handleSelectChange}>
+                            <Select placeholder="请选择场地名称" defaultValue={this.state.place_title} style={{ width: 150 }} onChange={this.handleSelectChange}>
                                 {
                                      data ? data.map((item)=>{
                                         return <Option value={item.place_name} key={item.place_name}>{item.place_title}</Option>
@@ -222,7 +226,7 @@ class RootPlace extends Component {
                             </Select>
                         </FormItem>
                         <FormItem label="所预约场地时间" >
-                            <DatePicker placeholder="请选择日期" format="YYYY-MM-DD" onChange={this.onTimeChange} />
+                            <DatePicker placeholder="请选择日期" defaultValue={this.state.time} format="YYYY-MM-DD" onChange={this.onTimeChange} />
                         </FormItem>
                         <br/>
                         <FormItem>
@@ -251,8 +255,8 @@ class RootPlace extends Component {
                                                  {item.place_id}
                                              </Avatar>
                                              }
-                                        title={<Fragment><Tag>{item.place_name}</Tag><Tag>{item.time?item.time.split(' ')[0]:""}</Tag></Fragment>}
-                                        description={item.title}
+                                            title={<Fragment><Tag>{item.place_name}</Tag><Tag>{item.time?item.time.split(' ')[0]:""}</Tag></Fragment>}
+                                        description={<Fragment><Tag>{item.placeNum} : {item.title}</Tag></Fragment>}
                                     />    
                                   }>
                                 {
